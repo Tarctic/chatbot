@@ -1,38 +1,35 @@
 # import nltk
 from nltk.chat.util import Chat, reflections
 from flask import Flask, request, render_template
-import requests
-import json
 
 app = Flask(__name__)
+
+pairs = [
+    [
+        r"my name is (.*)",
+        ["Hello %1, how are you today?", "Hey %1 how's ghw going?"]
+    ],
+    [
+        r"what is your name?",
+        ["My name is gene", "I'm the cutest bot", "It's nice to meet you, I'm gene"]
+    ],
+    [
+        r"sorry (.*)",
+        ["It's alright", "It's ok", "Never gonna give you up, never gonna let you down"]
+    ]
+]
+
+chatbot = Chat(pairs, reflections)
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
-@app.route("/get", methods = ["GET"])
-def get_bot_response():
-    user_message = request.args.get('msg')
-    api_key = ""
-    model = "text-davinci-003"
-    response = generate_response_gpt3(user_message, model, api_key)
+@app.route("/chat", methods = ["POST"])
+def chat():
+    message = request.form["text"]
+    response = chatbot.respond(message)
     return response
-
-def generate_response_gpt3(user_message, model, api_key):
-    prompt = (f"User: {user_message}\n"
-              f"Chatbot: ")
-    response = requests.post(
-        "https://api.openai.com/v1/engines/text-davinci-003/completions",
-        headers = {"Authorization" : f"Bearer {api_key}"},
-        json={
-            "prompt" : prompt,
-            "max_tokens" : 200,
-            "temperature": 0.7
-        },
-    )
-
-    return response.json()["choices"][0]["text"].strip()
-
 
 if __name__ == "__main__":
     app.run()
