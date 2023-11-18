@@ -22,7 +22,7 @@ def generate_response_gpt3(user_message, model, api_key):
     prompt = (f"User: {user_message}\n"
               f"Chatbot: ")
     response = requests.post(
-        "https://api.openai.com/v1/engines/text-davinci-003/completions",
+        f"https://api.openai.com/v1/engines/{model}/completions",
         headers = {"Authorization" : f"Bearer {api_key}"},
         json={
             "prompt" : prompt,
@@ -31,7 +31,8 @@ def generate_response_gpt3(user_message, model, api_key):
         },
     )
 
-    return response.json()["choices"][0]["text"].strip()
+    reply = response.json()["choices"][0]["text"].strip()
+    return reply
 
 
 if __name__ == "__main__":
